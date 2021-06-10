@@ -1,14 +1,16 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-//import { clearLocalNotification, setLocalNotification } from '../utils/api';
+import { setNotification, clearNotification } from '../utils/api';
 
 class Result extends Component {
   componentDidMount() {
-    //clearLocalNotification().then(setLocalNotification);
+    clearNotification().then(setNotification);
   }
+  
   render() {
     const { result, questionsCount, backHome, startAgain} = this.props;
-    const percent = (result / questionsCount) * 100;
+    const percent = ((result / questionsCount) * 100).toFixed(0);
+    
     return (
       <>
         <View style={styles.card}>

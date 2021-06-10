@@ -14,6 +14,7 @@ import Quiz from './components/Quiz'
 import reducer from "./reducers";
 import middleware from "./middleware";
 import TabNav from './components/TabNav'
+import { setNotification, clearNotification } from './utils/api';
 
 const store = createStore(reducer, middleware);
 
@@ -26,7 +27,7 @@ const StackNavigatorConfig = {
 export default class App extends Component {
 
   componentDidMount() {
-    //todo: set notification
+    clearNotification().then(setNotification);
   }
 
   render() {

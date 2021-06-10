@@ -1,7 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import decks from './_DATA';
-
+import * as Permissions from 'expo-permissions';
+import * as Notifications from 'expo-notifications';
 const STORAGE_KEY = 'MY_mobile-flashcards:decks';
+const NOTIFICATION_KEY = 'MY_mobile-flashcards:notifications';
 
 async function merge(data) {
   return AsyncStorage.mergeItem(STORAGE_KEY, JSON.stringify(data));
@@ -89,4 +91,47 @@ export async function removeDeck(title) {
   } catch (err) {
     console.log('Error: ', err);
   }
+}
+
+export function setNotification() {
+  AsyncStorage.getItem(STORAGE_KEY)
+    .then(JSON.parse)
+    .then((data) => {
+      if (data === null) {
+        Permissions.askAsync(Permissions.NOTIFICATIONS)
+          .then(({ status }) => {
+            if (status === 'granted') {
+              Notifications.cancelAllScheduledNotificationsAsync();
+              Notifications.setNotificationHandler({
+                handleNotification: async () => ({
+                  shouldPlaySound: true,
+                  shouldShowAlert: true,
+                  shouldSetBadge: false
+                })
+              })
+
+              let tomorrow = new Date()  
+              tomorrow.setDate(tomorrow.getDate() + 1);
+              tomorrow.setHours(20);
+              tomorrow.setMinutes(0);
+
+              const notificationDate = new Date(tomorrow)
+              Notifications.scheduleNotificationAsync({
+                content: {
+                  title: 'Hello from FlashCard App',
+                  body: "👋 Remember to study today!",
+                },
+                trigger : notificationDate,
+                repeats: true
+              })
+              AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(true))
+            }
+          })
+      }
+    })
+}
+
+export function clearNotification() {
+  return AsyncStorage.removeItem(STORAGE_KEY)
+    .then(Notifications.cancelAllScheduledNotificationsAsync)
 }
